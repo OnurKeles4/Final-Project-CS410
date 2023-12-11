@@ -104,10 +104,13 @@ public class ClassManagement {
         switch (len) {
             case(1):
                 SQL = "SELECT course_no FROM Class WHERE course_no = ?";
+                break;
             case(2):
                 SQL = "SELECT course_no FROM Class WHERE course_no = ? AND term = ?";
+                break;
             case(3):
                 SQL = "SELECT course_no FROM Class WHERE course_no = ? AND term = ? AND section_no = ?";
+                break;
         }
 
         if(len > 0) {
