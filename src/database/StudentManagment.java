@@ -25,7 +25,7 @@ public class StudentManagment {
                 System.out.println("Please give the necessary information;");
                 System.out.println("Username of the Student");
                 username = kb.nextLine();
-                enrollExstingStudent(username);
+                enrollStudent(username);
                 break;
             case(3):
                 showAllStudents();
@@ -91,7 +91,6 @@ public class StudentManagment {
         }
     }
 
-
     private static void enrollExstingStudent(String username) throws SQLException {
         String SQL = "UPDATE StudentsClasses SET course_no = ? WHERE id = ?";
             if (doesStudentExist(username))
@@ -123,16 +122,28 @@ public class StudentManagment {
 
     private static void addNewStudent(String username, String name) throws SQLException {
         System.out.println("Adding a new Student");
-
+        int isStudentEnrolled = doesStudentEnrolled(username);
         try {
             if(doesStudentExist(username)) {
-                UserApp.warningLine();
-                System.out.println("Warning! This Student already exists in the system, this" +
-                                   "prompt only enrolled this student into system");
-                UserApp.warningLine();
+                if (isStudentEnrolled == 0) {
+                    UserApp.warningLine();
+                    System.out.println("Warning! This Student already exists in the system, this" +
+                            "prompt only enrolled this student into system");
+                    UserApp.warningLine();
 
-                enrollExstingStudent(username);
+                    enrollExstingStudent(username);
+                }
+                else if(isStudentEnrolled == 1){
+                    UserApp.warningLine();
+                    System.out.println("Warning! This Student already exists in the system and student is enrolled" +
+                            "to this class");
+                    UserApp.warningLine();
+                }
+                else {
+                    System.out.println("ERROR IN THE SYSTEM!");
+                }
             }
+
             else{ enrollNewStudent(username, name); }
 
         } catch (SQLException e) {
@@ -181,6 +192,57 @@ public class StudentManagment {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }*/
+    }
+
+    private static int doesStudentEnrolled(String username) throws SQLException {
+        String SQL = "SELECT id FROM StudentsClasses WHERE id = ? AND course_no = ?";
+
+        int student_id = lookupStudentIdByUsername(username);
+        if(student_id == -1) {
+            System.out.println("ERROR");
+            return -1;
+        }
+        Connection con = UserApp.connect();
+        PreparedStatement ps = con.prepareStatement(SQL);
+        ps.setInt (1, student_id);
+        ps.setString(2, ClassManagement.current_active_class);
+        ResultSet rs = ps.executeQuery();
+
+        if (rs.next()) {
+            return 1;            //Student exists
+        }
+        return 0;               //Student DNE
+    }
+
+
+    private static void enrollStudent(String username) throws SQLException {
+        String SQL = "INSERT INTO StudentsClasses(id, course_no) "
+                + "VALUES(?,?)";
+        int isStudentEnrolled = doesStudentEnrolled(username);
+
+
+        if(isStudentEnrolled == 0) {
+            Connection con = UserApp.connect();
+            Statement statement = con.createStatement();
+            PreparedStatement ps = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
+            int student_id = lookupStudentIdByUsername(username);
+            if (student_id == -1) {
+                System.out.println("ERROR");
+                return;
+            }
+
+            ps.setInt(1, student_id);
+            ps.setString(2, ClassManagement.current_active_class);
+
+            int affectedRows = ps.executeUpdate();
+            System.out.println("Affected Rows:" + affectedRows);
+        }
+        else if(isStudentEnrolled == 1){
+            System.out.println("This student is already enrolled to this class");
+        }
+        else {
+            System.out.println("Error");
+        }
     }
 
     private static void enrollNewStudent(String username, String name) {
