@@ -87,7 +87,10 @@ public class UserApp {
                 break;
             case(5):
                 if(checkCurrentClass()) {
-                    System.out.println(GradeCalculate.calculateGrade());
+                    System.out.println("Please give the necessary information;");
+                    System.out.print("Username of the Student: ");
+                    String username = kb.nextLine();
+                    System.out.println(GradeCalculate.calculateGrade(username));
                 }
                 else {
                     noCurrentClass();
