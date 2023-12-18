@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 public class GradeCalculate {
 
+    //calculates the grade of given user, if they don't exists, error and return -1.
     public static double calculateGrade(String username) throws SQLException {
 
         String SQL = "SELECT\n" +
@@ -16,8 +17,7 @@ public class GradeCalculate {
                 "FROM StudentsGrades sg\n" +
                 "LEFT JOIN Assignment a on a.name = sg.assignment_name \n" +
                 "LEFT JOIN Category c on a.category = c.name\n" +
-                "WHERE sg.id = ?\n" +
-                "GROUP BY a.category;";
+                "WHERE sg.id = ? AND c.course_number = ? GROUP BY a.category;";
 
         Connection conn = UserApp.connect();
         PreparedStatement ps = conn.prepareStatement(SQL);
@@ -31,6 +31,7 @@ public class GradeCalculate {
             return -1;
         }
         ps.setInt(1, student_id);
+        ps.setString(2, ClassManagement.current_active_class);
 
         ResultSet rs = ps.executeQuery();
         int student_grade = 0;

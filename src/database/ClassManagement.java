@@ -5,12 +5,16 @@ import java.sql.*;
 import java.util.Arrays;
 import java.util.Scanner;
 public class ClassManagement {
+
+    //data variables for the sake of this part of the java file
     private static String course_no = "";
     private static int section = -1;
     private static String term = "";
     public static String current_active_class= "";        // This should be a result from sql (?)
     public static int current_active_section = -1;
     public static String current_active_term = "";
+
+    //takes necessary info from the user for option, then starts the process.
     public static void chooseOption(int option, Scanner kb) throws SQLException {
         UserApp.newLine();
 
@@ -47,7 +51,7 @@ public class ClassManagement {
 
 
 
-    //parameters will come from table
+    //create a new class with given info
     private static void createClass(String course_no, int section_no, String term, String description) {
         System.out.println("creating a class");
 
@@ -69,7 +73,7 @@ public class ClassManagement {
             System.out.println(ex.getMessage());
         }
     }
-
+    // List all classes from the Class table of the database
     private static void listClasses() throws SQLException {
         System.out.println("Listing Classes");
         UserApp.newLine();
@@ -93,6 +97,7 @@ public class ClassManagement {
 
     }
 
+    //activate the class, the user can give detailed information about term, section. If section conditions doesn't meet, inform user.
     private static void activateClass(Scanner kb) throws SQLException {
 
         System.out.println( "Please give the necessary information;\ncourse_no | term | section");
@@ -127,30 +132,6 @@ public class ClassManagement {
             section = Integer.parseInt(info_splitted[2]);
         }
 
-        /*switch (len) {
-            case(1):
-                course_no = info_splitted[0];
-                SQL = "SELECT course_no FROM Class WHERE course_no = ?";
-                if(!checkSections(SQL, len)) {
-
-                    System.out.println("TWO SECTIONS");
-                    return;}
-                break;
-            case(2):
-                course_no = info_splitted[0];
-                term = info_splitted[1];
-                SQL = "SELECT course_no FROM Class WHERE course_no = ? AND term = ?";
-                if(!checkSections(SQL, len))
-                    return;
-                break;
-            case(3):
-                course_no = info_splitted[0];
-                term = info_splitted[1];
-                section = Integer.parseInt(info_splitted[2]);
-                SQL = "SELECT course_no FROM Class WHERE course_no = ? AND term = ? AND section_no = ?";
-                break;
-        }*/
-
         if(doesClassExists(SQL, len)) {
             SQL = "SELECT term, section_no FROM Class WHERE course_no = ?";
             current_active_class = course_no;
@@ -161,6 +142,7 @@ public class ClassManagement {
         }
     }
 
+    //If user changes the active class no, this function will change other detials.
     private static void setClassDetails(String SQL) throws SQLException {
         Connection conn = UserApp.connect();
         PreparedStatement ps = conn.prepareStatement(SQL);
@@ -175,6 +157,7 @@ public class ClassManagement {
         }
     }
 
+    //checks is the desired class exists
     private static boolean doesClassExists(String SQL, int len) throws SQLException {
         Connection conn = UserApp.connect();
 
@@ -191,7 +174,7 @@ public class ClassManagement {
 
         return rs.next();
     }
-
+    //checks that is there any duplicate sections
     private static boolean checkSections(String SQL, int len) throws SQLException {
 
         Connection conn = UserApp.connect();
@@ -212,7 +195,7 @@ public class ClassManagement {
         }
         return count < 2;
     }
-
+    //display current class.
     private static void showCurrentActivateClass() {
         System.out.printf("Current active class is: %s | %d | %s%n", current_active_class, current_active_section, current_active_term);
     }

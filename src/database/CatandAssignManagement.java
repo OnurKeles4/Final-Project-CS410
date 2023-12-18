@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class CatandAssignManagement {
 
 
+    //takes necessary info from the user for option, then starts the process.
     public static void chooseOption(int option, Scanner kb) throws SQLException {
         UserApp.newLine();
         switch (option) {
@@ -53,7 +54,7 @@ public class CatandAssignManagement {
         UserApp.successfulProcess();
     }
 
-
+    //Add a new assignment to the Assignment table.
     private static void addAssingment(String name, String description, double point, String category) {
 
         System.out.println("Adding a Assignment");
@@ -90,7 +91,7 @@ public class CatandAssignManagement {
     }
 
 
-
+    //List assignments in the Assignment table
     private static void showAssingment() throws SQLException {
         System.out.println("Showing Assignment");
         UserApp.newLine();
@@ -113,6 +114,7 @@ public class CatandAssignManagement {
         }
     }
 
+    //Add a new category to the Category table.
     private static void addCategory(String name, double weight) {
         System.out.println("Adding a category");
 
@@ -138,6 +140,7 @@ public class CatandAssignManagement {
 
     }
 
+    //List categories in the Category table
     private static void showCategory() throws SQLException {
         System.out.println("Showing Categories");
         UserApp.newLine();
@@ -158,15 +161,16 @@ public class CatandAssignManagement {
         }
     }
 
+    //Checks if the category exists. (Now also checks if the category exists in the current class)
     private static boolean isCategoryExists(String category) throws SQLException {
 
-        String SQL = "SELECT name FROM Category WHERE name = ?";
+        String SQL = "SELECT name FROM Category WHERE name = ? AND course_number = ?";
 
         Connection con = UserApp.connect();
         PreparedStatement ps = con.prepareStatement(SQL);
         ps.setString (1, category);
+        ps.setString(2, ClassManagement.current_active_class);
         ResultSet rs = ps.executeQuery();
-
         if (rs.next()) {
             return true;            //Category exists
         }

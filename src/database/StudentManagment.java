@@ -6,7 +6,7 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class StudentManagment {
-    // To add the class to student (or student to class), add a new column of "class name" to student table.
+    //takes necessary info from the user for option, then starts the process.
     public static void chooseOption(int option, Scanner kb) throws SQLException {
         UserApp.newLine();
         switch (option) {
@@ -54,7 +54,7 @@ public class StudentManagment {
     }
 
 
-
+    //Search a student from the database with name.
     private static void searchStudents(String name) throws SQLException {
 
         String SQL = "SELECT name FROM Student WHERE name = ?";
@@ -64,13 +64,14 @@ public class StudentManagment {
         ps.setString (1, name.toLowerCase());
         ResultSet rs = ps.executeQuery();
 
+
         while (rs.next()) {
             String searched_name = rs.getString("name");
             System.out.printf("Student named: %s\n", searched_name);
         }
 
     }
-
+    //Show all the students
     private static void showAllStudents() throws SQLException {
         System.out.println("Showing All Students");
         UserApp.newLine();
@@ -90,7 +91,7 @@ public class StudentManagment {
             UserApp.newLine();
         }
     }
-
+    //Enroll an existing student to a new class.
     private static void enrollExstingStudent(String username) throws SQLException {
         String SQL = "UPDATE StudentsClasses SET course_no = ? WHERE id = ?";
             if (doesStudentExist(username))
@@ -119,7 +120,7 @@ public class StudentManagment {
                 System.out.println("This student is not in the database");
             }
     }
-
+    //add a new student to the student table, checks that is student already exists or enrolled.
     private static void addNewStudent(String username, String name) throws SQLException {
         System.out.println("Adding a new Student");
         int isStudentEnrolled = doesStudentEnrolled(username);
@@ -150,50 +151,10 @@ public class StudentManagment {
             e.printStackTrace();
         }
 
-        /*
-        * try (
-                Connection con = UserApp.connect();
-                Statement statement = con.createStatement();
-                PreparedStatement ps2 = con.prepareStatement(SQL2, Statement.RETURN_GENERATED_KEYS);
-                PreparedStatement ps = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS)) {
-            if(flag) {
-                System.out.println("flag doğru!!!");
-                ps.setString(1, username);
-                ps.setString(2, name);
-                ps2.setString(1,username);
-                ps2.setString(2,ClassManagement.current_active_class);
-                System.out.println("flag sonlandı!!!!!!!!1");
 
-            }
-            else {
-                    ps2.setString(1, username);
-                    ResultSet rs = statement.executeQuery(SQL2);
-                    student_id = rs.getInt("id");
-
-                ps.setString(1, ClassManagement.current_active_class);
-                ps.setInt(2, student_id);
-
-            }
-            int affectedRows = ps.executeUpdate();
-            // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        id = rs.getLong(1);
-                    }
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-            System.out.println(affectedRows);
-
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }*/
     }
 
+    //checks does the student enrolled to the current class. Returns -1 if error, 1, if enrolled, 0 if not.
     private static int doesStudentEnrolled(String username) throws SQLException {
         String SQL = "SELECT id FROM StudentsClasses WHERE id = ? AND course_no = ?";
 
@@ -214,7 +175,7 @@ public class StudentManagment {
         return 0;               //Student DNE
     }
 
-
+    //Enroll a new student to the StudentsClasses table with id, takes username from the user then finds the id of that username.
     private static void enrollStudent(String username) throws SQLException {
         String SQL = "INSERT INTO StudentsClasses(id, course_no) "
                 + "VALUES(?,?)";
@@ -244,9 +205,9 @@ public class StudentManagment {
             System.out.println("Error");
         }
     }
-
+    //enroll a new student. Both add new values to Student and StudentsClasses table.
     private static void enrollNewStudent(String username, String name) {
-        String SQL = "INSERT INTO Student(username, name) "             //What about id??
+        String SQL = "INSERT INTO Student(username, name) "
                 + "VALUES(?,?)";
         String SQL2 = "INSERT INTO StudentsClasses(id, course_no) "
                 + "VALUES(?,?)";
@@ -271,7 +232,7 @@ public class StudentManagment {
             System.out.println(ex.getMessage());
         }
     }
-
+    //does student exists in student table
     public static boolean doesStudentExist(String username) throws SQLException {
 
         String SQL = "SELECT name FROM Student WHERE username = ?";
@@ -285,6 +246,7 @@ public class StudentManagment {
         return false;               //Student DNE
     }
 
+    // is student enrolled to the current class.
     private static boolean isStudentEnrolled(String username) throws SQLException {
             String SQL = "SELECT course_no FROM StudentsClasses WHERE id = ?";
 
@@ -303,6 +265,7 @@ public class StudentManagment {
         return false;
     }
 
+    //takes student username from the user. Looks to the table to get student's id.
     public static int lookupStudentIdByUsername(String username){
         String SQL = "SELECT id FROM Student WHERE username = ?";
         try {
@@ -322,7 +285,8 @@ public class StudentManagment {
         return -1;
     }
 
-
+    // Takes username of the student, assignment name, and grade for the assignment. Informs user about maximum limit for the assignment
+    // checks if the student is already graded. If they are, update their grade, if not add a new value to StudentsGrades table.
     private static void gradeStudent(String username, String assignment_name, double grade) throws SQLException{
 
         System.out.println("Grading a Student");
@@ -339,129 +303,10 @@ public class StudentManagment {
         System.out.println("Max possible grade: " + maxScoreOnAssignment);
         if(isStudentGraded(student_id, assignment_name)) { updateStudentGrade(student_id, grade, assignment_name);}
         else { submitnewGradebyStudentID(student_id, assignment_name, grade);}
-        // check ıf points makes sense
-        // submit grade
-            // update grade
-            // insert
-        /*
-        * try {Connection con = UserApp.connect();
-            Statement statement = con.createStatement();
 
-            PreparedStatement ps = con.prepareStatement(SQL);
-            ps.setString(1,username);
-            ResultSet rs = ps.executeQuery();
-            if(rs.next())
-            student_id = rs.getInt("id");
-            else
-                return;
-
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }*/
-        /*
-            * int affectedRows = ps.executeUpdate();
-            // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs2 = ps.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        id = rs2.getLong(1);
-                    }
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-            System.out.println(affectedRows);*/
-        /*
-        * try(Connection con = UserApp.connect();
-        Statement statement = con.createStatement();)
-        {
-            SQL = "SELECT points FROM Assignment WHERE name = ?";
-
-            PreparedStatement ps3 = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS);
-            ps3.setString(1, assignment_name);
-
-            ResultSet rs = statement.executeQuery(SQL);
-            double point = rs.getDouble("point");
-
-            if(point < grade) {
-                UserApp.warningLine();
-                System.out.println("Warning! This grade is over point limit!");
-            }
-        }
-        catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }*/
-        /*
-        *
-
-        if (isStudentGraded(student_id)) {
-            // update grade
-            updateGrade()
-        } else {
-            // Create new grade
-            createGrade()
-        }*/
-        /*
-        * boolean flag = true;
-        //System.out.println("öğrenci vaar mı " + doesStudentExist(username));
-        try {
-            if (isStudentGraded(student_id)) {
-                //System.out.println("Warning! This Student already exists in the system, this" +
-                        //"prompt only enrolled this student into system");
-                SQL = "UPDATE StudentsGrades SET grade = ? WHERE id = ?";
-                flag = false;
-            } else {
-                SQL = "INSERT INTO StudentsGrades(assignment_name, id, grade) "
-                        + "VALUES(?,?,?)";
-
-            }
-        }
-        catch (SQLException e) {
-            e.printStackTrace();
-        }
-*/
-        /*
-        * try (
-                Connection con = UserApp.connect();
-                Statement statement = con.createStatement();        // Statement.RETURN_GENERATED_KEYS INSERT ICIN SADECE
-                PreparedStatement ps2 = con.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS)) {
-            if(flag) {
-                ps2.setString(1, assignment_name);
-                ps2.setInt(2, student_id);
-                ps2.setDouble(3, grade);
-            }
-            else {
-                ps2.setDouble(1, grade);
-                ps2.setInt(2, student_id);
-            }
-            //check that if the point is over point of the assignment
-            //*** DOESN'T WORK !
-
-
-
-            int affectedRows = ps2.executeUpdate();
-            // check the affected rows
-            if (affectedRows > 0) {
-                // get the ID back
-                try (ResultSet rs2 = ps2.getGeneratedKeys()) {
-                    if (rs2.next()) {
-                        id = rs2.getLong(1);
-                    }
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
-            }
-            System.out.println(affectedRows);
-
-
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-*/
     }
 
+    // Add a new value to the StudentsGrade table.
     private static void submitnewGradebyStudentID(int student_id, String assignment_name,double grade) {
         String  SQL = "INSERT INTO StudentsGrades(assignment_name, id, grade, course_no) "
                 + "VALUES(?,?,?,?)";
@@ -482,7 +327,7 @@ public class StudentManagment {
             throwables.printStackTrace();
         }
     }
-
+    // Update the value with student's id in StudentsGrade table.
     private static void updateStudentGrade(int student_id, double grade, String assignment_name) throws SQLException {
         String SQL = "UPDATE StudentsGrades SET grade = ? WHERE id = ? AND assignment_name = ?";
         try (
@@ -501,8 +346,8 @@ public class StudentManagment {
             throwables.printStackTrace();
         }
     }
-
-        private static double lookupMaxPossibleScoreForAssigment(String assignment_name) {
+    // Checks the what is the maximum possible grade for the given assignment name
+    private static double lookupMaxPossibleScoreForAssigment(String assignment_name) {
         String SQL = "SELECT point FROM Assignment WHERE name = ?";
         double point = -1;
         try {Connection con = UserApp.connect();
@@ -522,7 +367,7 @@ public class StudentManagment {
 
         return point;
     }
-
+    //check if the student is already graded.
     private static boolean isStudentGraded(int student_id, String assignment_name) throws SQLException {
         String SQL = "SELECT grade assingment_name FROM StudentsGrades WHERE id = ? AND assignment_name = ? AND course_no = ?";
         Connection con = UserApp.connect();

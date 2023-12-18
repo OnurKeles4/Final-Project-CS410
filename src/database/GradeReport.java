@@ -6,6 +6,8 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class GradeReport {
+
+    //takes necessary info from the user for option, then starts the process.
     public static void chooseOption(int option, Scanner kb) throws SQLException {
         UserApp.newLine();
         switch (option) {
@@ -25,9 +27,10 @@ public class GradeReport {
         UserApp.successfulProcess();
     }
 
+    //Lists the all grades related to current class
     private static void showGradebook() throws SQLException {
         String SQL = "SELECT sg.id, s.username,s.name, grade, assignment_name, course_no FROM StudentsGrades sg\n" +
-                "LEFT JOIN Student s on sg.id = s.id WHERE course_no = ? ORDER BY ";
+                "LEFT JOIN Student s on sg.id = s.id WHERE course_no = ? ORDER BY sg.category";
         Connection conn = UserApp.connect();
         PreparedStatement ps = conn.prepareStatement(SQL);
 
@@ -50,6 +53,7 @@ public class GradeReport {
         }
     }
 
+    //Lists all grades of the given student, ordered by category.
     private static void studentGrades(String username) throws SQLException {
         String SQL = "SELECT sg.grade, sg.assignment_name, sg.course_no, a.category FROM StudentsGrades sg\n" +
                 "LEFT JOIN Assignment a on sg.assignment_name = a.name WHERE id = ? order by a.category;";

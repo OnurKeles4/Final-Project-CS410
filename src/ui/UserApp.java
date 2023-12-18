@@ -6,7 +6,7 @@ import database.*;
 //              CS 410 - Final Project - Onur Keles            //
 //-------------------------------------------------------------//
 
-
+//Main UI part of the code
 public class UserApp {
     static Scanner kb = new Scanner(System.in);
     public static void main(String [] args) throws SQLException {
@@ -24,7 +24,7 @@ public class UserApp {
     }
 
 
-
+    //Gives more details for each option, sends the user to their option.
     public static void chooseOption(int decision) throws SQLException {
         int option;
         switch (decision) {
@@ -42,7 +42,7 @@ public class UserApp {
             case(2):
                 if(checkCurrentClass()) {
                     System.out.println("1: Show Categories");
-                    System.out.println("2: Add a category");
+                    System.out.println("2: Add Category");
                     System.out.println("3: Show Assignment");
                     System.out.println("4: Add Assignment");
                     System.out.println("5: Return to Main Screen");
@@ -100,6 +100,7 @@ public class UserApp {
     }
 
 
+    //String Output Functions
 
     public static void headerLine() { System.out.println("|---------------------------------|"); }
     public static void newLine() { System.out.println("-----------------------------------"); }
@@ -138,10 +139,12 @@ public class UserApp {
         warningLine();
     }
 
+    //checks that if current class is selected or not
     public static boolean checkCurrentClass() {
         return !ClassManagement.current_active_class.equals("");
     }
 
+    //checks if user's input is valid for that option or not
     public static int inputOption(int bottomlimit, int toplimit) {
         int option = Integer.parseInt(kb.nextLine());
         //System.out.println("Please input the desired action: ");
@@ -151,7 +154,7 @@ public class UserApp {
         }
         return option;
     }
-
+    //connect to database
     public static Connection connect() throws SQLException{
 
         String url = "jdbc:mysql://localhost:58623/final_project";
